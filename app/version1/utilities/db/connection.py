@@ -29,7 +29,7 @@ def initializedb():
                 users (firstname, lastname, email, password, isadmin)
                 VALUES ('mainadmin', 'admin', 'admin12@gmail.com', '%s', true)
                 ON CONFLICT (email) DO NOTHING;
-                """%(generate_password_hash("passadmin"))
+                """%(generate_password_hash(os.getenv("ADMIN_PASS")))
         connection = dbconnection()
         cursor = connection.cursor()
         cursor.execute(gen_admin)

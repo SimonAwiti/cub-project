@@ -6,10 +6,12 @@ from flask import Flask, redirect, jsonify
 from flask_restful import Api
 from flask_cors import CORS
 from datetime import datetime, timedelta
+from flask_jwt_extended import JWTManager
 
 
 from instance.config import app_config
 from app.version1.utilities.db.connection import initializedb
+from app.version1.views.users import RegisterUsers, LoginUsers
 
 
 """importing the configurations from the .config file which is in the instance folder"""
@@ -40,10 +42,16 @@ def create_app(config_name):
     # Initialize flask_restful and add routes
     api_endpoint = Api(app)
 
+    api_endpoint.add_resource(RegisterUsers, '/api/v1/auth/signup')
+    api_endpoint.add_resource(LoginUsers, '/api/v1/auth/login')
 
     # Add CORS to handle Access-Control-Allow-Origin issues
     CORS(app)
 
     initializedb()
+
+    app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY')
+    #app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.utcnow() + timedelta(minutes=60) 
+    jwt = JWTManager(app)
 
     return app
