@@ -21,6 +21,7 @@ def create_app(config_name):
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
 
+
     """Catch all 400 related errors""" 
     @app.errorhandler(400)
     def bad_request_error(error):
@@ -42,11 +43,22 @@ def create_app(config_name):
     # Initialize flask_restful and add routes
     api_endpoint = Api(app)
 
-    api_endpoint.add_resource(RegisterUsers, '/api/v1/auth/signup')
-    api_endpoint.add_resource(LoginUsers, '/api/v1/auth/login')
+    #api_endpoint.add_resource(RegisterUsers, '/api/v1/auth/signup')
+    #api_endpoint.add_resource(LoginUsers, '/api/v1/auth/login')
 
-    # Add CORS to handle Access-Control-Allow-Origin issues
-    CORS(app)
+    def configure_blueprints(app):
+        """ Configure blueprints . """
+        from .version1.views.users import auth_blueprint
+
+        app_blueprints = [ auth_blueprint ]
+
+        for bp in app_blueprints:
+            CORS(bp)
+            app.register_blueprint(bp)
+
+    # register our blueprints
+    configure_blueprints(app)           
+    
 
     initializedb()
 

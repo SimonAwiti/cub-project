@@ -1,6 +1,6 @@
 """handles all operations for creating and fetching data relating to users"""
 import psycopg2
-from flask import request, jsonify, make_response
+from flask import request, jsonify, make_response, json
 from flask_jwt_extended import create_access_token
 from psycopg2.extras import RealDictCursor
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -67,10 +67,10 @@ class Users(Helper):
 
         present = Helper.check_if_user_exists(self, email)
         if present:
-            return{
+            return({
                 "status": 409,
                 "error": "There is a user with the same email registered"
-                }, 409
+                }), 409
 
         try:
             hashed_password = generate_password_hash(password)
@@ -84,7 +84,7 @@ class Users(Helper):
             response = jsonify({'status': 201,
                                 "msg":'User Successfully Created'})
             response.status_code = 201
-            return response
+            return (response)
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
             response = jsonify({'status': 500,

@@ -1,11 +1,14 @@
 """Views for the users resource"""
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask import request
+from flask import request, Blueprint, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app.version1.models.users import Users
 from app.version1.utilities.validators import validate_data_signup
+
+
+auth_blueprint = Blueprint('auth', __name__)
 
 parser = reqparse.RequestParser(bundle_errors=True)
 parser.add_argument('firstname', help="You must supply your first name", required=True)
@@ -30,7 +33,7 @@ class RegisterUsers(Resource):
                 args['email'],
                 args['password'],
                 args['confirm'])
-        return response
+        return jsonify(response)
 
 class LoginUsers(Resource):
     """
@@ -42,3 +45,23 @@ class LoginUsers(Resource):
             request.json['email'],
             request.json['password'],
         )
+
+# Define the API resources
+registration_view = RegisterUsers.as_view('register_api')
+login_view = LoginUsers.as_view('login_api')
+
+
+# Add Rules for API Endpoints
+auth_blueprint.add_url_rule(
+    '/api/v1/auth/signup', 
+    view_func=registration_view,
+    methods=['POST']
+)
+
+# Add Rules for API Endpoints
+
+auth_blueprint.add_url_rule(
+    '/api/v1/auth/login',
+    view_func=login_view,
+    methods=['POST']
+)
